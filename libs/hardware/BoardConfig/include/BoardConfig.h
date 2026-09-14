@@ -39,6 +39,9 @@
 #ifndef FREEINK_DEVICE_X4PRO
 #define FREEINK_DEVICE_X4PRO 0
 #endif
+#ifndef FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8
+#define FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8 0
+#endif
 #ifndef FREEINK_DEVICE_X4CLASSIC
 #define FREEINK_DEVICE_X4CLASSIC 0
 #endif
@@ -80,12 +83,12 @@
 #endif
 
 // --- 2) Coherence: exactly one MCU family, at least one device ---------------
-#if !(FREEINK_DEVICE_X4 || FREEINK_DEVICE_X3 || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_M5 || \
+#if !(FREEINK_DEVICE_X4 || FREEINK_DEVICE_X3 || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8 || FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_M5 || \
       FREEINK_DEVICE_MURPHY || FREEINK_DEVICE_DELINK || FREEINK_DEVICE_LILYGO || FREEINK_DEVICE_M5PAPER ||               \
       FREEINK_DEVICE_STICKY || FREEINK_DEVICE_PAPERMONO || FREEINK_DEVICE_PAPERS3 || FREEINK_DEVICE_MURPHY_M4 ||         \
       FREEINK_DEVICE_EEGO_A4 || FREEINK_DEVICE_ONEPAGE || FREEINK_DEVICE_WS397)
 #error \
-    "FreeInk: no device selected. Pass at least one -DFREEINK_DEVICE_<NAME> (X4, X3, X4PRO, X4CLASSIC, M5, MURPHY, DELINK, LILYGO, M5PAPER, STICKY, PAPERMONO, PAPERS3, MURPHY_M4, EEGO_A4, ONEPAGE, WS397) in your build env — see platformio.sample.ini."
+  "FreeInk: no device selected. Pass at least one -DFREEINK_DEVICE_<NAME> (X4, X3, X4PRO, WAVESHARE_S3_ZERO_N8R8, X4CLASSIC, M5, MURPHY, DELINK, LILYGO, M5PAPER, STICKY, PAPERMONO, PAPERS3, MURPHY_M4, EEGO_A4, ONEPAGE, WS397) in your build env — see platformio.sample.ini."
 #endif
 // Each device belongs to one MCU family; a binary targets exactly one. X3/X4 are
 // ESP32-C3; M5 PaperColor/Murphy/de-link/LilyGo are ESP32-S3; M5Paper v1.1 is the
@@ -95,7 +98,7 @@
 #define FREEINK_MCU_C61 (FREEINK_DEVICE_ONEPAGE)
 #define FREEINK_MCU_S3                                                                                    \
   (FREEINK_DEVICE_M5 || FREEINK_DEVICE_MURPHY || FREEINK_DEVICE_DELINK || FREEINK_DEVICE_LILYGO ||        \
-   FREEINK_DEVICE_STICKY || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_PAPERMONO ||  \
+  FREEINK_DEVICE_STICKY || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8 || FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_PAPERMONO ||  \
    FREEINK_DEVICE_PAPERS3 || FREEINK_DEVICE_MURPHY_M4 || FREEINK_DEVICE_EEGO_A4 || FREEINK_DEVICE_WS397)
 #define FREEINK_MCU_ESP32 (FREEINK_DEVICE_M5PAPER)
 #if (FREEINK_MCU_C3 + FREEINK_MCU_C61 + FREEINK_MCU_S3 + FREEINK_MCU_ESP32) != 1
@@ -110,7 +113,7 @@
 // X4 Pro is a distinct ESP32-S3 device (NOT the C3 X4): its 800x480 panel may
 // use SSD1677, UC8179, or UC8279, recovered from OEM firmware and hardware
 // references — see docs/xteink-x4pro-support.md.
-#if FREEINK_DEVICE_X4 || FREEINK_DEVICE_DELINK || FREEINK_DEVICE_STICKY || FREEINK_DEVICE_X4PRO || \
+#if FREEINK_DEVICE_X4 || FREEINK_DEVICE_DELINK || FREEINK_DEVICE_STICKY || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8 || \
     FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_MURPHY_M4 || FREEINK_DEVICE_ONEPAGE || FREEINK_DEVICE_WS397
 #define FREEINK_DRIVER_SSD1677 1
 #else
@@ -329,7 +332,7 @@
 #ifndef FREEINK_SD_SDMMC
 #define FREEINK_SD_SDMMC                                                                            \
   (FREEINK_DEVICE_DELINK || FREEINK_DEVICE_X4PRO || FREEINK_DEVICE_X4CLASSIC || FREEINK_DEVICE_PAPERMONO || \
-   FREEINK_DEVICE_MURPHY_M4 || FREEINK_DEVICE_WS397)
+   FREEINK_DEVICE_MURPHY_M4 || FREEINK_DEVICE_WS397 || FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8)
 #endif
 
 // Serial log transport hint for consumer firmware. Boards can share the same MCU
@@ -373,6 +376,7 @@ enum class Board : uint8_t {
   XteinkX3,
   XteinkX3Uc8279,  // newer X3 production run: same board/glass, UC8279d controller
   XteinkX4Pro,     // ESP32-S3 sibling of the C3 X4: SSD1677 + GT911 touch + warm/cold frontlight
+  WaveshareS3ZeroN8R8,
   XteinkX4Classic,  // ESP32-S3 "X4 Classic" (X4C): same panel/glass as the X4 Pro but NO touch and
                     // NO frontlight — those pins become four extra discrete front keys
   M5StackPaperColor,
@@ -1673,6 +1677,34 @@ constexpr BoardProfile XTEINK_X4_PRO = {
     {9, 7, 3, 7},
     true};  // batteryChargeStatusActiveHigh: GPIO21 STAT is driven HIGH while charging
 
+  // --- Waveshare ESP32-S3-Zero-N8R8 — DESPI-C02, 800x480 SSD1677, SDMMC 1-bit ---
+  // Exposed header GPIO only. DESPI-C02: DIN=11, CLK=12, CS=13, DC=10, RST=9,
+  // BUSY=8. microSD SDIO 1-bit: CLK=1, CMD=2, D0=4. Three active-low navigation
+  // buttons: previous=5, next=6, menu/power=7. No touch, frontlight, gauge, RTC,
+  // rail latch, or card power switch.
+  constexpr BoardProfile WAVESHARE_S3_ZERO_N8R8 = {
+    Board::WaveshareS3ZeroN8R8,
+    "ws_s3_zero_n8r8",
+    InputStyle::DigitalButtons,
+    DisplayController::SSD1677,
+    800,
+    480,
+    {12, 11, 13, 10, 9, 8, PIN_UNASSIGNED},
+    10000000,
+    {PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, false, 0},
+    {PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, 5, 6, 7, false},
+    PIN_UNASSIGNED,
+    PIN_UNASSIGNED,
+    2.0f,
+    PIN_UNASSIGNED,
+    NO_TOUCH,
+    NO_FRONTLIGHT,
+    NO_AUDIO,
+    NO_LEDS,
+    NO_FLIP,
+    {1, 2, 4, PIN_UNASSIGNED, PIN_UNASSIGNED, PIN_UNASSIGNED, 1},
+    {PIN_UNASSIGNED, PIN_UNASSIGNED, 0, 0, 0, 0, GaugeType::Bq27220}};
+
 // --- Xteink X4 Classic (X4C) — ESP32-S3, 800x480 EPD, NO touch, NO frontlight ---
 // The X4C shares the X4 Pro's ESP32-S3 board, glass, and display stack (SSD1677 /
 // UC8179 / UC8279, selected the same way at boot), but DROPS the GT911 touchscreen
@@ -1821,7 +1853,8 @@ constexpr uint32_t MAX_FRAMEBUFFER_BYTES = cmax(
                    FREEINK_DEVICE_LILYGO ? panelBytes(LILYGO_T5S3) : 0u),
               cmax(FREEINK_DEVICE_M5PAPER ? panelBytes(M5PAPER_V11) : 0u,
                    cmax(FREEINK_DEVICE_X4PRO ? panelBytes(XTEINK_X4_PRO) : 0u,
-                        FREEINK_DEVICE_X4CLASSIC ? panelBytes(XTEINK_X4_CLASSIC) : 0u))),
+                    cmax(FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8 ? panelBytes(WAVESHARE_S3_ZERO_N8R8) : 0u,
+                      FREEINK_DEVICE_X4CLASSIC ? panelBytes(XTEINK_X4_CLASSIC) : 0u)))),
          cmax(cmax(FREEINK_DEVICE_STICKY ? panelBytes(STICKY) : 0u,
                    FREEINK_DEVICE_PAPERMONO ? panelBytes(PAPER_MONO) : 0u),
               cmax(cmax(FREEINK_DEVICE_PAPERS3 ? panelBytes(M5PAPER_S3) : 0u,
@@ -1859,6 +1892,8 @@ constexpr BoardProfile DEFAULT_DEVICE = M5PAPER_S3;
 constexpr BoardProfile DEFAULT_DEVICE = STICKY;
 #elif FREEINK_DEVICE_X4PRO
 constexpr BoardProfile DEFAULT_DEVICE = XTEINK_X4_PRO;
+#elif FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8
+constexpr BoardProfile DEFAULT_DEVICE = WAVESHARE_S3_ZERO_N8R8;
 #elif FREEINK_DEVICE_X4CLASSIC
 constexpr BoardProfile DEFAULT_DEVICE = XTEINK_X4_CLASSIC;
 #elif FREEINK_DEVICE_X3 && !FREEINK_DEVICE_X4
@@ -1933,6 +1968,11 @@ inline bool selectDevice(Board which) {
       ACTIVE = XTEINK_X4_PRO;
       break;
 #endif
+#if FREEINK_DEVICE_WAVESHARE_S3_ZERO_N8R8
+  case Board::WaveshareS3ZeroN8R8:
+      ACTIVE = WAVESHARE_S3_ZERO_N8R8;
+      break;
+#endif
 #if FREEINK_DEVICE_X4CLASSIC
     case Board::XteinkX4Classic:
       ACTIVE = XTEINK_X4_CLASSIC;
@@ -1981,6 +2021,7 @@ inline bool isM5PaperV11() { return ACTIVE.board == Board::M5PaperV11; }
 inline bool isM5PaperS3() { return ACTIVE.board == Board::M5PaperS3; }
 inline bool isSticky() { return ACTIVE.board == Board::Sticky; }
 inline bool isX4Pro() { return ACTIVE.board == Board::XteinkX4Pro; }
+inline bool isWaveshareS3ZeroN8R8() { return ACTIVE.board == Board::WaveshareS3ZeroN8R8; }
 inline bool isX4Classic() { return ACTIVE.board == Board::XteinkX4Classic; }
 inline bool isPaperMono() { return ACTIVE.board == Board::PaperMono; }
 inline bool isEegoA4() { return ACTIVE.board == Board::EegoA4; }

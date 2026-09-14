@@ -1684,7 +1684,7 @@ constexpr BoardProfile XTEINK_X4_PRO = {
   // rail latch, or card power switch.
   constexpr BoardProfile WAVESHARE_S3_ZERO_N8R8 = {
     Board::WaveshareS3ZeroN8R8,
-    "waveshare_s3_zero_n8r8",
+    "ws_s3_zero_n8r8",
     InputStyle::DigitalButtons,
     DisplayController::SSD1677,
     800,
